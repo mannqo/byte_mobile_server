@@ -2,8 +2,8 @@
 
 
 ### 目录结构
-+ ├──app | 
-+ ├──controller 接口 
++ ├──app  
++ | ├──controller 接口 
 + | ├──middleware 中间件 
 + | ├──model 数据结构 
 + | ├──public 静态资源 
