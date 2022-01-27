@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-const UsersSchema = mongoose.Schema({ 
+const UsersSchema = mongoose.Schema({
     userId: {
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
         unique: true,
     },
@@ -29,14 +29,8 @@ const UsersSchema = mongoose.Schema({
     status: {
         type: Number,  // 0登录， 1未登录
         default: 1
-    },
-    charList: {
-        type: Array,
-        default: []
     }
 
 })
-
-// export { }
 
 module.exports = mongoose.model('user', UsersSchema);

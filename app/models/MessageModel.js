@@ -3,15 +3,15 @@ const { database } = require('../../config/config')
 
 const MessageSchema = mongoose.Schema({
     messageId: {
-        type: Number,
+        type: String,
         required: true,
     },
     userId: {
-        type: Number,
+        type: String,
         required: true
     },
     receiverId: {
-        type: Number,
+        type: String, 
         required: true,
     },
     message: {

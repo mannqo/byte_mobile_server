@@ -1,4 +1,4 @@
-const UserModel = require('../model/UserModel.js');
+const UserModel = require('../models/UserModel.js');
 const mongoose = require('mongoose');
 
 
@@ -16,6 +16,7 @@ const register = async (ctx) => {
             user,
             username,
             password,
+            nickname: username,
         })
 
         try {
