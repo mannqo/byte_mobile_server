@@ -11,8 +11,8 @@ const mongoose = require('mongoose');
 const { dbUrl } = require('../config/config');
 mongoose.connect(dbUrl)
     .then(() => { console.log('Mongodb Connected..'); })
-    .catch((err: Error) => { console.log(err); })
-  
+    .catch((err) => { console.log(err); })
+
 
 app.use(cors({
     origin: "http://localhost:3000",
@@ -20,15 +20,15 @@ app.use(cors({
     credentials: true, //是否允许发送Cookie
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], //设置所允许的HTTP请求方法'
     allowHeaders: ['sessionId', 'Content-Type', 'Authorization', 'Accept'], //设置服务器支持的所有头信息字段
-    exposeHeaders: ['SESSIONID','WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
-})) 
+    exposeHeaders: ['SESSIONID', 'WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
+}))
 app.use(bodyParser());
 app.use(router.routes()).use(router.allowedMethods());
 
 // 引入websocket模块 
 const io = require('socket.io')(server, { cors: true });
-io.on('connection', (socket:any) => {
-    socket.on('get-chatList', (userId:Number) => {
+io.on('connection', (socket) => {
+    socket.on('get-chatList', (userId) => {
         console.log(userId);
 
         socket.join(userId);
