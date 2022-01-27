@@ -4,14 +4,13 @@ const mongoose = require('mongoose');
 const ArticleSchema = mongoose.Schema({
     // 引用
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
-        db: 'koa_mine',
-        require: true
+        type: String,
+        required: true,
+        unique: true,
     },
 
     articleId: {
-        type: Number,
+        type: String,
         required: true,
     },
     title: {

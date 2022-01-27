@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const LikeAndStarSchema = mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
-        db: 'koa_mine'
+        type: String,
+        required: true,
+        unique: true,
     },
     articleId: {
-        type: Number,
+        type: String,
         required: true
     },
     type: {
