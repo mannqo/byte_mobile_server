@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); 
 
-const UsersSchema = mongoose.Schema({ 
+const UsersSchema = mongoose.Schema({
     userId: {
         type: Number,
         required: true,
@@ -27,7 +27,7 @@ const UsersSchema = mongoose.Schema({
         default: ''
     },
     status: {
-        type: Number,  // 0登录， 1未登录
+        type: Number, // 0登录， 1未登录
         default: 1
     },
     charList: {

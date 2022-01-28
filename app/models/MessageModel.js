@@ -11,7 +11,7 @@ const MessageSchema = mongoose.Schema({
         required: true
     },
     receiverId: {
-        type: Number,
+        type: Number, 
         required: true,
     },
     message: {
