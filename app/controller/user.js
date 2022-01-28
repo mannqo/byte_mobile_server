@@ -98,15 +98,11 @@ const cancelFollow = async ctx => {
 // 获取用户关注的人
 const getFollowerList = async ctx => {
     const { userId } = ctx.query;
-    let res = [];
     try {
-        const followerList = await FollowerModel.find({ userId });
-        for (let i = 0; i < followerList.length; i++) {
-            const follower = await UserModel.findOne({ userId: followerList[i].followerId });
-            console.log(follower);
-            res.push(follower);
-        }
-        ctx.body = { status: 200, res };
+        const user = await UserModel.findOne({ userId });
+        const { follows } = user;
+
+        ctx.body = { status: 200, follows };
     } catch (err) {
         console.log(err);
         ctx.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
@@ -116,14 +112,10 @@ const getFollowerList = async ctx => {
 // 获取关注用户的人
 const getFanList = async ctx => {
     const { userId } = ctx.query;
-    let res = [];
     try {
-        const fanList = await FollowerModel.find({ followerId: userId });
-        for (let i = 0; i < fanList.length; i++) {
-            const fan = await UserModel.findOne({ userId: fanList[i].userId });
-            res.push(fan);
-        }
-        ctx.body = { status: 200, res };
+        const user = await UserModel.find({ userId });
+        const { fans } = user;
+        ctx.body = { status: 200, fans };
     } catch (err) {
         console.log(err);
         res.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
