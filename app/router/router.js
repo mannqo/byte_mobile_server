@@ -17,7 +17,7 @@ const {
 const {
     getUserBaseInfo,
     getUserFullInfo,
-    followUsers,
+    followUser,
     cancelFollow,
     getFollowerList,
     getFanList,
@@ -56,7 +56,7 @@ router.get("/getLoginStatus", getLoginStatus);
 // user
 router.get("/user/baseInfo", getUserBaseInfo);
 router.get("/user/fullInfo", getUserFullInfo);
-router.post("/user/follow", followUsers);
+router.post("/user/follow", followUser);
 router.post("/user/cancelFollow", cancelFollow);
 router.get("/user/followerList", getFollowerList);
 router.get("/user/fanList", getFanList);
