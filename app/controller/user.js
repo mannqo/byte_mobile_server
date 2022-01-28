@@ -1,5 +1,4 @@
 const ArticleModel = require('../models/ArticleModel');
-const FollowerModel = require('../models/FollowerModel');
 const UserModel = require('../models/UserModel');
 
 
