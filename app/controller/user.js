@@ -109,11 +109,28 @@ const cancelFollow = async ctx => {
 
 // 获取用户关注的人
 const getFollowerList = async ctx => {
+    const { userId } = ctx.query;
+    try {
+        const user = await UserModel.findOne({ userId });
+        const { follows } = user;
 
+        ctx.body = { status: 200, follows };
+    } catch (err) {
+        console.log(err);
+        ctx.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
+    }
 }
 // 获取关注用户的人
 const getFanList = async ctx => {
-
+    const { userId } = ctx.query;
+    try {
+        const user = await UserModel.find({ userId });
+        const { fans } = user;
+        ctx.body = { status: 200, fans };
+    } catch (err) {
+        console.log(err);
+        res.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
+    }
 }
 
 module.exports = {
