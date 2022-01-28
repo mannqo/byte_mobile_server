@@ -7,10 +7,10 @@ const register = async (ctx) => {
     const { username, password } = ctx.request.body;
     const user = await UserModel.findOne({ username });
 
-    if (user) ctx.body = { msg: '该用户名已存在' };
+    if (user) ctx.body = { status: 400, msg: '该用户名已存在' };
     else {
         const users = await UserModel.find({});
-        const userId = users.length + 1;
+        const userId = users[users.length - 1].userId + 1;
         const newUser = new UserModel({
             userId,
             user,
@@ -21,9 +21,10 @@ const register = async (ctx) => {
 
         try {
             await UserModel.create(newUser);
-            ctx.body = { status: 0, msg: '注册成功' }
+            ctx.body = { status: 200, msg: '注册成功' }
         } catch (err) {
-            ctx.body = { status: 1, msg: '注册失败' }
+            console.log(err);
+            ctx.body = { status: 500, msg: '内部错误' }
         }
     }
 
@@ -37,14 +38,15 @@ const login = async (ctx) => {
     try {
         const data = await UserModel.updateOne({ username, password }, { status: 0 });
         if (data.modifiedCount) {
-            ctx.body = { status: 0, msg: '登录成功', userId: data.userId };
+            ctx.body = { status: 200, msg: '登录成功', userId: data.userId };
         } else if (!data.matchedCount) {
-            ctx.body = { status: 1, msg: '账号或密码错误', userId: data.userId };
+            ctx.body = { status: 400, msg: '账号或密码错误', userId: data.userId };
         } else {
-            ctx.body = { status: 1, msg: '你已经登录了', userId: data.userId };
+            ctx.body = { status: 406, msg: '你已经登录了', userId: data.userId };
         }
     } catch (err) {
-        ctx.body = { status: 1, msg: '未知错误' }
+        console.log(err);
+        ctx.body = { status: 500, msg: '内部错误' }
     }
 }
 
@@ -54,14 +56,15 @@ const logout = async (ctx) => {
     try {
         const data = await UserModel.updateOne({ username }, { status: 1 });
         if (data.modifiedCount) {
-            ctx.body = { status: 0, msg: '登出成功' };
+            ctx.body = { status: 200, msg: '登出成功' };
         } else if (!data.matchedCount) {
-            ctx.body = { status: 1, msg: '找不到该用户' };
+            ctx.body = { status: 404, msg: '找不到该用户' };
         } else {
-            ctx.body = { status: 1, msg: '你还未登录' };
+            ctx.body = { status: 406, msg: '你还未登录' };
         }
     } catch (err) {
-
+        console.log(err);
+        ctx.body = { status: 500, msg: '内部错误' }
     }
 }
 
@@ -70,9 +73,9 @@ const getLoginStatus = async (ctx) => {
     const { username } = ctx.query;
     const result = await UserModel.findOne({ username });
     if (result) {
-        ctx.body = { status: result.status, msg: '0表示登录, 1表示未登录' }
+        ctx.body = { status: 200, result: result.status, msg: '0表示登录, 1表示未登录' }
     } else {
-        ctx.body = { msg: '你还没注册呢' };
+        ctx.body = { status: 404, msg: '你还没注册呢' };
     }
 }
 

@@ -15,25 +15,19 @@ const {
 } = require('../controller/sendMessage');
 
 const {
-    likeOrStar,
-    cancelLikeOrStar,
-    getUserInfo,
+    getUserBaseInfo,
+    getUserFullInfo,
     followUsers,
     cancelFollow,
     getFollowerList,
     getFanList,
-    likeStarMiddle,
-} = require('../controller/userInfo')
-
-const {
-    getUserBaseInfo,
-    getUserFullInfo
 } = require('../controller/user.js')
 
 const {
     getArticleById,
     getArticleByAuthor,
     postArticle,
+    deleteArticle,
     likeArticle,
     unlikeArticle,
     starArticle,
@@ -44,6 +38,7 @@ const {
     getReviewById,
     getReviewByArticle,
     postReview,
+    deleteReview,
     likeReview,
     unlikeReview
 } = require('../controller/review.js')
@@ -61,11 +56,16 @@ router.get("/getLoginStatus", getLoginStatus);
 // user
 router.get("/user/baseInfo", getUserBaseInfo);
 router.get("/user/fullInfo", getUserFullInfo);
+router.post("/user/follow", followUsers);
+router.post("/user/cancelFollow", cancelFollow);
+router.get("/user/followerList", getFollowerList);
+router.get("/user/fanList", getFanList);
 
 // article
 router.get("/article/byId", getArticleById);
 router.get("/article/byAuthor", getArticleByAuthor);
 router.post("/article", postArticle);
+router.post("/article/delete", deleteArticle);
 router.post("/article/like", likeArticle);
 router.post("/article/unlike", unlikeArticle);
 router.post("/article/star", starArticle);
@@ -75,6 +75,7 @@ router.post("/article/unstar", unstarArticle);
 router.get("/review/byId", getReviewById);
 router.get("/review/byArticle", getReviewByArticle);
 router.post("/review", postReview);
+router.post("/review/delete", deleteReview);
 router.post("/review/like", likeReview);
 router.post("/review/unlike", unlikeReview);
 
@@ -82,16 +83,5 @@ router.post("/review/unlike", unlikeReview);
 router.post('/sendMessage', sendMessage);
 router.get('/getChattingRecord', getChattingRecord);
 router.get('/getChatList', getChatList);
-
-// 点赞收藏
-router.post('/likeOrStar', likeStarMiddle, likeOrStar);
-router.delete('/cancelLikeOrStar', likeStarMiddle, cancelLikeOrStar);
-
-// 用户
-router.get('/getUserInfo', getUserInfo);
-router.post('/follow', followUsers);
-router.delete('/cancelFollow', cancelFollow);
-router.get('/getFollowerList', getFollowerList);
-router.get('/getFanList', getFanList);
 
 module.exports = router;

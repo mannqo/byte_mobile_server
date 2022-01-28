@@ -1,5 +1,6 @@
-const ReviewModel = require('../model/ReviewModel.js');
-const UserModel = require('../model/UserModel.js');
+const ArticleModel = require('../models/ArticleModel.js');
+const ReviewModel = require('../models/ReviewModel.js');
+const UserModel = require('../models/UserModel.js');
 
 
 // 通过评论ID查找评论
@@ -19,7 +20,7 @@ const getReviewByArticle = async (ctx) => {
     const { articleId } = ctx.query;
     const reviews = await ReviewModel.find({ articleId });
 
-    if (reviews) {
+    if (reviews.length > 0) {
         ctx.body = { status: 200, msg: '成功', reviews };
     } else {
         ctx.body = { status: 404, msg: '找不到任何结果' };
@@ -30,7 +31,7 @@ const getReviewByArticle = async (ctx) => {
 const postReview = async (ctx) => {
     const { replyToUserId, replyToArticleId, parentReviewId, authorId, content } = ctx.request.body;
     const reviews = await ReviewModel.find({});
-    const reviewId = reviews.length + 1;
+    const reviewId = reviews[reviews.length - 1].reviewId + 1;
     const newReview = new ReviewModel({
         reviewId,
         replyToUserId,
@@ -41,10 +42,56 @@ const postReview = async (ctx) => {
     })
 
     try {
+        // 对应文章的评论数+1
+        const article = await ArticleModel.findOne({ articleId: replyToArticleId });
+        await ArticleModel.updateOne({ articleId: replyToArticleId }, { reviews: article.reviews + 1 });
+
+        if (parentReviewId) {
+            // 如果有父评论，则把当前评论id添加到其父评论的reviews数组中
+            const { reviewList } = await ReviewModel.findOne({ reviewId: parentReviewId });
+            reviewList.push(reviewId);
+            await ReviewModel.updateOne({ reviewId: parentReviewId }, { reviewList });
+        } else {
+            // 否则把评论id添加到对应文章的评论列表中
+            const { reviewList } = article;
+            reviewList.push(reviewId);
+            await ArticleModel.updateOne({ articleId: replyToArticleId }, { reviewList });
+        }
         await ReviewModel.create(newReview);
         ctx.body = { status: 200, msg: '发布成功' }
     } catch (err) {
+        console.log(err);
         ctx.body = { status: 500, msg: '发布失败' }
+    }
+}
+
+const deleteReview = async (ctx) => {
+    const { reviewId } = ctx.request.body;
+    const review = await ReviewModel.findOne({ reviewId });
+
+    if (review) {
+        // 递归删除
+        review.reviewList.forEach(async (reviewId) => {
+            // 假装请求
+            const fakeCtx = { request: { body: { reviewId } }, body: {} };
+            await deleteReview(fakeCtx);
+            if (fakeCtx.body.status !== 200) {
+                // 删除失败
+                console.error({ fakeCtx });
+                ctx.body = { status: 500, msg: '内部错误' };
+                return;
+            }
+        })
+        // 删除review
+        const result = await ReviewModel.remove({ reviewId });
+        if (result.modifiedCount) {
+            ctx.body = { status: 200, msg: '删除评论成功' };
+        } else {
+            console.error({ reviewId, result });
+            ctx.body = { status: 500, msg: '内部错误' };
+        }
+    } else {
+        ctx.body = { status: 404, msg: '找不到该评论' };
     }
 }
 
@@ -105,6 +152,7 @@ module.exports = {
     getReviewById,
     getReviewByArticle,
     postReview,
+    deleteReview,
     likeReview,
     unlikeReview
 };

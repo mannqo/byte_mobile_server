@@ -26,7 +26,7 @@ const ReviewSchema = mongoose.Schema({
         type: String,
         default: '',
     },
-    reviews: {
+    reviewList: {
         type: Array,
         default: [],
     },

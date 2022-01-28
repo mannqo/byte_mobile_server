@@ -1,5 +1,7 @@
-const ArticleModel = require('../model/ArticleModel.js');
-const UserModel = require('../model/UserModel.js');
+const ArticleModel = require('../models/ArticleModel.js');
+const ReviewModel = require('../models/ReviewModel.js');
+const UserModel = require('../models/UserModel.js');
+const { deleteReview } = require('./review');
 
 
 // 通过文章ID查找文章
@@ -19,7 +21,7 @@ const getArticleByAuthor = async (ctx) => {
     const { authorId } = ctx.query;
     const articles = await ArticleModel.find({ authorId });
 
-    if (articles) {
+    if (articles.length > 0) {
         ctx.body = { status: 200, msg: '成功', articles };
     } else {
         ctx.body = { status: 404, msg: '找不到任何结果' };
@@ -29,11 +31,12 @@ const getArticleByAuthor = async (ctx) => {
 // 发布文章
 const postArticle = async (ctx) => {
     const { userId, images, title, content, tags } = ctx.request.body;
+    console.log(ctx.request.body);
     const articles = await ArticleModel.find({});
-    const articleId = articles.length + 1;
+    const articleId = articles[articles.length - 1].articleId + 1;
     const newArticle = new ArticleModel({
         articleId,
-        userId,
+        authorId: userId,
         images,
         title,
         content,
@@ -45,6 +48,37 @@ const postArticle = async (ctx) => {
         ctx.body = { status: 200, msg: '发布成功' }
     } catch (err) {
         ctx.body = { status: 500, msg: '发布失败' }
+    }
+}
+
+// 根据id删除文章
+const deleteArticle = async (ctx) => {
+    const { articleId } = ctx.request.body;
+    const article = await ArticleModel.findOne({ articleId });
+
+    if (article) {
+        // 递归删除article中的每一条评论
+        article.reviewList.forEach(async (reviewId) => {
+            // 假装请求
+            const fakeCtx = { request: { body: { reviewId } }, body: {} };
+            await deleteReview(fakeCtx);
+            if (fakeCtx.body.status !== 200) {
+                // 删除失败
+                console.error({ fakeCtx });
+                ctx.body = { status: 500, msg: '内部错误' };
+                return;
+            }
+        })
+        // 删除article
+        const result = await ArticleModel.remove({ articleId });
+        if (result.modifiedCount) {
+            ctx.body = { status: 200, msg: '删除文章成功' };
+        } else {
+            console.error({ articleId, result });
+            ctx.body = { status: 500, msg: '内部错误' };
+        }
+    } else {
+        ctx.body = { status: 404, msg: '找不到该文章' };
     }
 }
 
@@ -61,8 +95,11 @@ const likeArticle = async (ctx) => {
             ctx.body = { status: 406, msg: '你已经喜欢过了' }
         } else {
             likedArticles.push(articleId);
-            const result = await UserModel.updateOne({ userId }, { likedArticles });
-            if (result.modifiedCount) {
+            const userResult = await UserModel.updateOne({ userId }, { likedArticles });
+            const articleResult = await ArticleModel.updateOne({ articleId }, { likes: article.likes + 1 });
+            const success = userResult.modifiedCount && articleResult.modifiedCount;
+
+            if (success) {
                 ctx.body = { status: 200, msg: '成功' }
             } else {
                 console.error({ userId, articleId });
@@ -78,10 +115,10 @@ const likeArticle = async (ctx) => {
 const unlikeArticle = async (ctx) => {
     const { userId, articleId } = ctx.request.body;
     const user = await ArticleModel.findOne({ userId });
-    const article = await ArticleModel.findOne({ articleId });
 
-    // 判断用户id和文章id是否有效
-    if (user && article) {
+    // 判断用户id是否有效
+    // 不判断文章id是否有效是因为：删除文章后还保留喜欢列表，所以喜欢过的文章有可能失效
+    if (user) {
         const { likedArticles } = user;
         if (!likedArticles.includes(articleId)) {
             ctx.body = { status: 406, msg: '你还没有喜欢这篇文章' }
@@ -131,10 +168,10 @@ const starArticle = async (ctx) => {
 const unstarArticle = async (ctx) => {
     const { userId, articleId } = ctx.request.body;
     const user = await ArticleModel.findOne({ userId });
-    const article = await ArticleModel.findOne({ articleId });
 
-    // 判断用户id和文章id是否有效
-    if (user && article) {
+    // 判断用户id是否有效
+    // 不判断文章id是否有效是因为：删除文章后还保留收藏列表，所以收藏过的文章有可能失效
+    if (user) {
         const { staredArticles } = user;
         if (!staredArticles.includes(articleId)) {
             ctx.body = { status: 406, msg: '你还没有收藏这篇文章' }
@@ -158,6 +195,7 @@ module.exports = {
     getArticleById,
     getArticleByAuthor,
     postArticle,
+    deleteArticle,
     likeArticle,
     unlikeArticle,
     starArticle,
