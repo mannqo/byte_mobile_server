@@ -33,8 +33,27 @@ const UsersSchema = mongoose.Schema({
     charList: {
         type: Array,
         default: []
+    },
+    likedArticles: {
+        type: Array,
+        default: []
+    },
+    staredArticles: {
+        type: Array,
+        default: []
+    },
+    likedReviews: {
+        type: Array,
+        default: []
+    },
+    follows: {
+        type: Array,
+        default: []
+    },
+    fans: {
+        type: Array,
+        default: []
     }
-
 })
 
 // export { }
