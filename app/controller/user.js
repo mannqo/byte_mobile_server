@@ -52,7 +52,7 @@ const getUserFullInfo = async (ctx) => {
 const followUser = async (ctx) => {
     let { userId, followerId } = ctx.request.body;
     const user = await UserModel.findOne({ userId });
-    const follower = await UserModel.findOne({ followerId });
+    const follower = await UserModel.findOne({ userId: followerId });
 
     if (!user || !follower) {
         ctx.body = { status: 400, msg: '参数错误' }
@@ -65,7 +65,7 @@ const followUser = async (ctx) => {
         user.follows.push(followerId);
         follower.fans.push(userId);
         const userResult = await UserModel.updateOne({ userId }, { follows: user.follows });
-        const followerResult = await UserModel.updateOne({ followerId }, { fans: follower.fans });
+        const followerResult = await UserModel.updateOne({ userId: followerId }, { fans: follower.fans });
         const success = userResult.modifiedCount && followerResult.modifiedCount;
 
         if (success) {
@@ -80,7 +80,7 @@ const followUser = async (ctx) => {
 const cancelFollow = async ctx => {
     let { userId, followerId } = ctx.request.body;
     const user = await UserModel.findOne({ userId });
-    const follower = await UserModel.findOne({ followerId });
+    const follower = await UserModel.findOne({ userId: followerId });
 
     if (!user || !follower) {
         ctx.body = { status: 400, msg: '参数错误' }
@@ -93,7 +93,7 @@ const cancelFollow = async ctx => {
         const userResult = await UserModel.updateOne({ userId }, {
             follows: user.follows.filter(i => i != followerId)
         });
-        const followerResult = await UserModel.updateOne({ userId }, {
+        const followerResult = await UserModel.updateOne({ userId: followerId }, {
             fans: follower.fans.filter(i => i != userId)
         });
         const success = userResult.modifiedCount && followerResult.modifiedCount;
