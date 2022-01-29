@@ -10,7 +10,7 @@ const register = async (ctx) => {
     if (user) ctx.body = { status: 400, msg: '该用户名已存在' };
     else {
         const users = await UserModel.find({});
-        const userId = users[users.length - 1].userId + 1;
+        const userId = users.length > 0 ? users[users.length - 1].userId + 1 : 1;
         const newUser = new UserModel({
             userId,
             user,
