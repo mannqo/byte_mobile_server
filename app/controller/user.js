@@ -6,12 +6,10 @@ const UserModel = require('../models/UserModel');
 // 不需要权限
 const getUserBaseInfo = async (ctx) => {
     const { userId } = ctx.query;
-    const user = await UserModel.findOne({ userId });
+    const user = await UserModel.findOne({ userId }).select('nickname avatar');
 
     if (user) {
-        const { nickname, avatar } = user;
-        const userInfo = { nickname, avatar };
-        ctx.body = { status: 200, msg: '查询成功', userInfo };
+        ctx.body = { status: 200, msg: '查询成功', user };
     } else {
         ctx.body = { status: 404, msg: '查找的用户不存在' };
     }
@@ -21,28 +19,18 @@ const getUserBaseInfo = async (ctx) => {
 // 需要登录权限
 const getUserFullInfo = async (ctx) => {
     const { userId } = ctx.query;
-    const user = await UserModel.findOne({ userId });
+    const user = await UserModel.findOne({ userId })
+        .select(`
+                nickname
+                avatar 
+                likedArticles
+                staredArticles
+                likedReviews
+                follows
+                fans`);
 
     if (user) {
-        const {
-            nickname,
-            avatar,
-            likedArticles,
-            staredArticles,
-            likedReviews,
-            follows,
-            fans
-        } = user;
-        const userInfo = {
-            nickname,
-            avatar,
-            likedArticles,
-            staredArticles,
-            likedReviews,
-            follows,
-            fans
-        };
-        ctx.body = { status: 200, msg: '查询成功', userInfo };
+        ctx.body = { status: 200, msg: '查询成功', user };
     } else {
         ctx.body = { status: 404, msg: '查找的用户不存在' };
     }
@@ -50,10 +38,9 @@ const getUserFullInfo = async (ctx) => {
 
 // 关注别人
 const followUser = async (ctx) => {
-    let { userId, followerId } = ctx.request.body;
+    const { userId, followerId } = ctx.request.body;
     const user = await UserModel.findOne({ userId });
     const follower = await UserModel.findOne({ userId: followerId });
-
     if (!user || !follower) {
         ctx.body = { status: 400, msg: '参数错误' }
         return;
@@ -83,7 +70,7 @@ const followUser = async (ctx) => {
 
 // 取消关注
 const cancelFollow = async ctx => {
-    let { userId, followerId } = ctx.request.body;
+    const { userId, followerId } = ctx.request.body;
     const user = await UserModel.findOne({ userId });
     const follower = await UserModel.findOne({ userId: followerId });
 
@@ -116,10 +103,11 @@ const cancelFollow = async ctx => {
 const getFollowerList = async ctx => {
     const { userId } = ctx.query;
     try {
-        const user = await UserModel.findOne({ userId });
-        const { follows } = user;
-
-        ctx.body = { status: 200, follows };
+        const user = await UserModel.findOne({ userId }).select('follows');
+        const { follows } = user; 
+        const followsList = await UserModel.find({ _id: { $in: follows } }).select('userId nickname avatar')
+     
+        ctx.body = { status: 200, followsList };
     } catch (err) {
         console.log(err);
         ctx.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
@@ -131,7 +119,9 @@ const getFanList = async ctx => {
     try {
         const user = await UserModel.find({ userId });
         const { fans } = user;
-        ctx.body = { status: 200, fans };
+        const fansList = await UserModel.find({ _id: { $in: fans } }).select('userId nickname avatar')
+
+        ctx.body = { status: 200, fansList };
     } catch (err) {
         console.log(err);
         res.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
