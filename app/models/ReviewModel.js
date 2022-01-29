@@ -26,6 +26,10 @@ const ReviewSchema = mongoose.Schema({
         type: String,
         default: '',
     },
+    likes: {
+        type: Number,
+        default: 0,
+    },
     reviewList: {
         type: Array,
         default: [],
