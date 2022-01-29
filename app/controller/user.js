@@ -83,16 +83,17 @@ const cancelFollow = async ctx => {
         ctx.body = { status: 406, msg: '你还没有关注过呢' }
     } else {
         const userResult = await UserModel.updateOne({ userId }, {
-            follows: user.follows.filter(i => i != follower._id)
+            follows: user.follows.filter(i => i.toString() !== follower._id.toString())
         });
         const followerResult = await UserModel.updateOne({ userId: followerId }, {
-            fans: follower.fans.filter(i => i != user._id)
+            fans: follower.fans.filter(i => i.toString() !== user._id.toString())
         });
         const success = userResult.modifiedCount && followerResult.modifiedCount;
 
         if (success) {
             ctx.body = { status: 200, msg: '取消关注成功' }
         } else {
+            console.error({ userResult, followerResult });
             ctx.body = { status: 500, msg: '内部错误' }
         }
     }
@@ -104,9 +105,9 @@ const getFollowerList = async ctx => {
     const { userId } = ctx.query;
     try {
         const user = await UserModel.findOne({ userId }).select('follows');
-        const { follows } = user; 
+        const { follows } = user;
         const followsList = await UserModel.find({ _id: { $in: follows } }).select('userId nickname avatar')
-     
+
         ctx.body = { status: 200, followsList };
     } catch (err) {
         console.log(err);
