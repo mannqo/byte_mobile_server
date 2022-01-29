@@ -46,6 +46,10 @@ const ArticleSchema = mongoose.Schema({
         type: String,
         default: new Date().toISOString(), // 2022-01-26T15:19:39.663Z
     },
+    available: {
+        type: Boolean,
+        default: true,
+    },
 })
 
 

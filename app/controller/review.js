@@ -18,7 +18,7 @@ const getReviewById = async (ctx) => {
 // 通过文章ID查找评论
 const getReviewByArticle = async (ctx) => {
     const { articleId } = ctx.query;
-    const reviews = await ReviewModel.find({ articleId });
+    const reviews = await ReviewModel.find({ replyToArticleId: articleId });
 
     if (reviews.length > 0) {
         ctx.body = { status: 200, msg: '成功', reviews };
@@ -31,7 +31,7 @@ const getReviewByArticle = async (ctx) => {
 const postReview = async (ctx) => {
     const { replyToUserId, replyToArticleId, parentReviewId, authorId, content } = ctx.request.body;
     const reviews = await ReviewModel.find({});
-    const reviewId = reviews[reviews.length - 1].reviewId + 1;
+    const reviewId = reviews.length > 0 ? reviews[reviews.length - 1].reviewId + 1 : 1;
     const newReview = new ReviewModel({
         reviewId,
         replyToUserId,
@@ -49,12 +49,12 @@ const postReview = async (ctx) => {
         if (parentReviewId) {
             // 如果有父评论，则把当前评论id添加到其父评论的reviews数组中
             const { reviewList } = await ReviewModel.findOne({ reviewId: parentReviewId });
-            reviewList.push(reviewId);
+            reviewList.push(newReview._id);
             await ReviewModel.updateOne({ reviewId: parentReviewId }, { reviewList });
         } else {
             // 否则把评论id添加到对应文章的评论列表中
             const { reviewList } = article;
-            reviewList.push(reviewId);
+            reviewList.push(newReview._id);
             await ArticleModel.updateOne({ articleId: replyToArticleId }, { reviewList });
         }
         await ReviewModel.create(newReview);
@@ -65,13 +65,15 @@ const postReview = async (ctx) => {
     }
 }
 
+// 根据id删除评论
 const deleteReview = async (ctx) => {
     const { reviewId } = ctx.request.body;
     const review = await ReviewModel.findOne({ reviewId });
 
     if (review) {
         // 递归删除
-        review.reviewList.forEach(async (reviewId) => {
+        review.reviewList.forEach(async (_id) => {
+            const { reviewId } = await ReviewModel.findOne({ _id });
             // 假装请求
             const fakeCtx = { request: { body: { reviewId } }, body: {} };
             await deleteReview(fakeCtx);
@@ -83,8 +85,15 @@ const deleteReview = async (ctx) => {
             }
         })
         // 删除review
-        const result = await ReviewModel.remove({ reviewId });
-        if (result.modifiedCount) {
+        const result = await ReviewModel.deleteOne({ reviewId });
+
+        if (result.deletedCount) {
+            // 对应文章的评论数-1，reviewList移除
+            const article = await ArticleModel.findOne({ articleId: review.replyToArticleId });
+            await ArticleModel.updateOne({ articleId: review.replyToArticleId }, {
+                reviews: article.reviews - 1,
+                reviewList: article.reviewList.filter(i => i.toString() !== review._id.toString())
+            });
             ctx.body = { status: 200, msg: '删除评论成功' };
         } else {
             console.error({ reviewId, result });
@@ -98,18 +107,21 @@ const deleteReview = async (ctx) => {
 // 喜欢评论
 const likeReview = async (ctx) => {
     const { userId, reviewId } = ctx.request.body;
-    const user = await ArticleModel.findOne({ userId });
-    const review = await ArticleModel.findOne({ reviewId });
+    const user = await UserModel.findOne({ userId });
+    const review = await ReviewModel.findOne({ reviewId });
 
     // 判断用户id和评论id是否有效
     if (user && review) {
         const { likedReviews } = user;
-        if (likedReviews.includes(reviewId)) {
+        if (likedReviews.includes(review._id)) {
             ctx.body = { status: 406, msg: '你已经喜欢过了' }
         } else {
-            likedReviews.push(reviewId);
-            const result = await UserModel.updateOne({ userId }, { likedReviews });
-            if (result.modifiedCount) {
+            likedReviews.push(review._id);
+            const userResult = await UserModel.updateOne({ userId }, { likedReviews });
+            const reviewResult = await ReviewModel.updateOne({ reviewId }, { likes: review.likes + 1 });
+            const success = userResult.modifiedCount && reviewResult.modifiedCount;
+
+            if (success) {
                 ctx.body = { status: 200, msg: '成功' }
             } else {
                 console.error({ userId, reviewId });
@@ -124,19 +136,22 @@ const likeReview = async (ctx) => {
 // 取消喜欢评论
 const unlikeReview = async (ctx) => {
     const { userId, reviewId } = ctx.request.body;
-    const user = await ArticleModel.findOne({ userId });
-    const review = await ArticleModel.findOne({ reviewId });
+    const user = await UserModel.findOne({ userId });
+    const review = await ReviewModel.findOne({ reviewId });
 
     // 判断用户id和文章id是否有效
     if (user && review) {
         const { likedReviews } = user;
-        if (!likedReviews.includes(reviewId)) {
-            ctx.body = { status: 406, msg: '你还没有喜欢这篇文章' }
+        if (!likedReviews.includes(review._id)) {
+            ctx.body = { status: 406, msg: '你还没有喜欢这个评论' }
         } else {
-            const result = await UserModel.updateOne({ userId }, {
-                likedReviews: likedReviews.filter(i => i != reviewId)
+            const userResult = await UserModel.updateOne({ userId }, {
+                likedReviews: likedReviews.filter(i => i.toString() !== review._id.toString())
             });
-            if (result.modifiedCount) {
+            const reviewResult = await ReviewModel.updateOne({ reviewId }, { likes: review.likes - 1 });
+            const success = userResult.modifiedCount && reviewResult.modifiedCount;
+
+            if (success) {
                 ctx.body = { status: 200, msg: '成功' }
             } else {
                 console.error({ userId, reviewId });
