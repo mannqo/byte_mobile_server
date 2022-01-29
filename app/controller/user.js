@@ -115,10 +115,10 @@ const getFollowerList = async ctx => {
 }
 // 获取关注用户的人
 const getFanList = async ctx => {
-    const { userId } = ctx.query;
+    const { userId } = ctx.query; 
     try {
-        const user = await UserModel.find({ userId });
-        const { fans } = user;
+        const user = await UserModel.findOne({ userId }); 
+        const { fans } = user; 
         const fansList = await UserModel.find({ _id: { $in: fans } }).select('userId nickname avatar')
 
         ctx.body = { status: 200, fansList };
