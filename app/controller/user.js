@@ -5,12 +5,17 @@ const UserModel = require('../models/UserModel');
 // 不需要权限
 const getUserBaseInfo = async (ctx) => {
     const { userId } = ctx.query;
-    const user = await UserModel.findOne({ userId }).select('nickname avatar');
+    try {
+        const user = await UserModel.findOne({ userId }).select('nickname avatar');
 
-    if (user) {
-        ctx.body = { status: 200, msg: '查询成功', user };
-    } else {
-        ctx.body = { status: 404, msg: '查找的用户不存在' };
+        if (user) {
+            ctx.body = { status: 200, msg: '查询成功', user };
+        } else {
+            ctx.body = { status: 404, msg: '查找的用户不存在' };
+        }
+    } catch (err) {
+        console.error(err);
+        ctx.body = { status: 500, msg: '内部错误' };
     }
 }
 
@@ -18,8 +23,9 @@ const getUserBaseInfo = async (ctx) => {
 // 需要登录权限
 const getUserFullInfo = async (ctx) => {
     const { userId } = ctx.query;
-    const user = await UserModel.findOne({ userId })
-        .select(`
+    try {
+        const user = await UserModel.findOne({ userId })
+            .select(`
                 nickname
                 avatar 
                 likedArticles
@@ -28,10 +34,14 @@ const getUserFullInfo = async (ctx) => {
                 follows
                 fans`);
 
-    if (user) {
-        ctx.body = { status: 200, msg: '查询成功', user };
-    } else {
-        ctx.body = { status: 404, msg: '查找的用户不存在' };
+        if (user) {
+            ctx.body = { status: 200, msg: '查询成功', user };
+        } else {
+            ctx.body = { status: 404, msg: '查找的用户不存在' };
+        }
+    } catch (err) {
+        console.error(err);
+        ctx.body = { status: 500, msg: '内部错误' };
     }
 }
 
@@ -66,7 +76,8 @@ const followUser = async (ctx) => {
             }
         }
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        ctx.body = { status: 500, msg: '内部错误' };
     }
 
 
@@ -102,7 +113,8 @@ const cancelFollow = async ctx => {
             }
         }
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        ctx.body = { status: 500, msg: '内部错误' };
     }
 
 }
