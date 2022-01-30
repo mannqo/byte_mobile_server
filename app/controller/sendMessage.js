@@ -6,7 +6,6 @@ const UserModel = require('../models/UserModel')
 const sendMessage = async (ctx) => {
 
     const { userId, receiverId, message } = ctx.request.body;
-    console.log('body', ctx.request.body);
     try {
         const messages = await MessageModel.find();
         const user = await UserModel.findOne({ userId }).select('chatList');
@@ -30,10 +29,10 @@ const sendMessage = async (ctx) => {
         })
         await MessageModel.create(newMessage);
 
-        ctx.body = ('{ status: 0, msg: "发送成功" }');
+        ctx.body = { status: 200, msg: "发送成功" };
     } catch (err) {
         console.log(err);
-        ctx.body = ('{ status: 1, msg: "未知异常" }');
+        ctx.body = { status: 500, msg: "未知异常" };
     }
 }
 
@@ -41,10 +40,10 @@ const getChattingRecord = async (ctx) => {
     const { userId, receiverId } = ctx.request.query;
     try {
         const record = await MessageModel.find({ $or: [{ userId, receiverId }, { userId: receiverId, receiverId: userId }] });
-        ctx.body = record;
+        ctx.body = { status: 200, record };
     } catch (err) {
         console.log(err);
-        ctx.body = ('{ status: 1, msg: "未知异常" }')
+        ctx.body = { status: 500, msg: '获取失败' }
     }
 }
 
@@ -54,10 +53,10 @@ const getChatList = async (ctx) => {
         const user = await UserModel.findOne({ userId })
         const chats = user.chatList;
         const chatList = await UserModel.find({ _id: { $in: chats } }).select('userId nickname avatar description');
-        ctx.body = (chatList);
+        ctx.body = { status: 200, chatList };
     } catch (err) {
         console.log(err);
-        ctx.body = ("{ msg: '获取失败' }");
+        ctx.body = { status: 500, msg: '获取失败' };
     }
 }
 

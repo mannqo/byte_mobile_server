@@ -9,7 +9,6 @@ const server = require('http').createServer(app.callback());
 // 连接数据库
 const mongoose = require('mongoose');
 const { dbUrl } = require('../config/config');
-const UserModel = require('./models/UserModel');
 mongoose.connect(dbUrl)
     .then(() => { console.log('Mongodb Connected..'); })
     .catch((err) => { console.log(err); })

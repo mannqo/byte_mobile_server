@@ -22,9 +22,9 @@ const getUserBaseInfo = async (ctx) => {
 // 根据userId查找用户的完整信息（不包括敏感信息）
 // 需要登录权限
 const getUserFullInfo = async (ctx) => {
-    const { userId } = ctx.query;
+    const { username } = ctx.query;
     try {
-        const user = await UserModel.findOne({ userId })
+        const user = await UserModel.findOne({ username })
             .select(`
                 nickname
                 avatar 
@@ -54,7 +54,7 @@ const followUser = async (ctx) => {
         if (!user || !follower) {
             ctx.body = { status: 400, msg: '参数错误' }
             return;
-        } 
+        }
         if (userId === followerId) {
             ctx.body = { status: 406, msg: '人不能太自恋' }
             return;
@@ -84,7 +84,7 @@ const followUser = async (ctx) => {
 }
 
 // 取消关注
-const cancelFollow = async ctx => { 
+const cancelFollow = async ctx => {
     try {
         const { userId, followerId } = ctx.request.body;
         const user = await UserModel.findOne({ userId });
@@ -103,7 +103,7 @@ const cancelFollow = async ctx => {
             });
             const followerResult = await UserModel.updateOne({ userId: followerId }, {
                 fans: follower.fans.filter(i => i !== user.userId)
-            }); 
+            });
             const success = userResult.modifiedCount && followerResult.modifiedCount;
 
             if (success) {
@@ -135,7 +135,7 @@ const getFollowerList = async ctx => {
 }
 // 获取关注用户的人
 const getFanList = async ctx => {
-    const { userId } = ctx.query; 
+    const { userId } = ctx.query;
     try {
         const user = await UserModel.findOne({ userId });
         const { fans } = user;
