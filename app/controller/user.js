@@ -26,6 +26,7 @@ const getUserFullInfo = async (ctx) => {
     try {
         const user = await UserModel.findOne({ username })
             .select(`
+                userId
                 nickname
                 avatar 
                 likedArticles
