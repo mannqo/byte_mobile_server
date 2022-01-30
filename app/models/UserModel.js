@@ -21,7 +21,7 @@ const UsersSchema = mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: 'https://joeschmoe.io/api/v1/random'
+        default: 'https://s3.bmp.ovh/imgs/2022/01/e0eba06fda436f82.jpg'
     },
     description: {
         type: String,

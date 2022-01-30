@@ -30,11 +30,12 @@ const register = async (ctx) => {
 
 }
 
-// 登录
-const login = async (ctx) => {
+// 登录 每个操作都要检查一下cookies
+// const cookies = require('../../config/cookies');
+const login = async (ctx, next) => {
     const body = ctx.request.body;
     const { username, password } = body;
-
+    // await next();
     try {
         const data = await UserModel.updateOne({ username, password }, { status: 0 });
         const { userId } = await UserModel.findOne({ username });
@@ -53,9 +54,9 @@ const login = async (ctx) => {
 
 // 退出登录
 const logout = async (ctx) => {
-    const { username } = ctx.request.body;
+    const { userId } = ctx.request.body;
     try {
-        const data = await UserModel.updateOne({ username }, { status: 1 });
+        const data = await UserModel.updateOne({ userId }, { status: 1 });
         if (data.modifiedCount) {
             ctx.body = { status: 200, msg: '登出成功' };
         } else if (!data.matchedCount) {
@@ -71,8 +72,8 @@ const logout = async (ctx) => {
 
 // 查看登录状态
 const getLoginStatus = async (ctx) => {
-    const { username } = ctx.query;
-    const result = await UserModel.findOne({ username });
+    const { userId } = ctx.query;
+    const result = await UserModel.findOne({ userId });
     if (result) {
         ctx.body = { status: 200, result: result.status, msg: '0表示登录, 1表示未登录' }
     } else {
