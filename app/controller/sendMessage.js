@@ -43,7 +43,7 @@ const sendMessage = async (ctx) => {
 }
 
 const getChattingRecord = async (ctx) => {
-    const { userId, receiverId } = ctx.request.query; 
+    const { userId, receiverId } = ctx.request.query;
     try {
         const record = await MessageModel.find({ $or: [{ userId, receiverId }, { userId: receiverId, receiverId: userId }] });
         ctx.body = record;
@@ -58,9 +58,13 @@ const getChatList = async (ctx) => {
     try {
         const user = await UserModel.findOne({ userId: Number(userId) });
         const charList = user.charList;
-        ctx.body = (JSON.stringify(charList));
+        if (charList && charList.length > 0) {
+            ctx.body = { status: 200, msg: '成功', charList };
+        } else {
+            ctx.body = { status: 404, msg: '没有任何内容' };
+        }
     } catch (err) {
-        ctx.body = ("{ msg: '获取失败' }");
+        ctx.body = { status: 500, msg: '内部错误' };
     }
 }
 
