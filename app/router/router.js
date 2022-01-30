@@ -47,9 +47,11 @@ router.get("/", async (ctx) => {
     ctx.body = { msg: "Hello koa Interfaces" };
 })
 
+const setCookies = require('../middleware/setCookies');
+console.log(setCookies);
 // login
 router.post("/register", register);
-router.post("/login", login);
+router.post("/login", setCookies, login);
 router.post("/logout", logout);
 router.get("/getLoginStatus", getLoginStatus);
 

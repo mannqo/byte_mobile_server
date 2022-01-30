@@ -1,4 +1,4 @@
- 
+
 const Koa = require('koa');
 const cors = require('koa2-cors')
 const bodyParser = require('koa-bodyparser');
@@ -9,10 +9,12 @@ const server = require('http').createServer(app.callback());
 // 连接数据库
 const mongoose = require('mongoose');
 const { dbUrl } = require('../config/config');
+const UserModel = require('./models/UserModel');
 mongoose.connect(dbUrl)
     .then(() => { console.log('Mongodb Connected..'); })
     .catch((err) => { console.log(err); })
 
+ 
 
 app.use(cors({
     origin: "http://localhost:3000",

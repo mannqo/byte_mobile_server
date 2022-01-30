@@ -30,13 +30,18 @@ const register = async (ctx) => {
 
 }
 
-// 登录
+// 登录 每个操作都要检查一下cookies
+// const cookies = require('../../config/cookies');
 const login = async (ctx) => {
     const body = ctx.request.body;
     const { username, password } = body;
-
     try {
         const data = await UserModel.updateOne({ username, password }, { status: 0 });
+        // 存cookies
+        // const userInfo = await UserModel.findOne({ username });
+        // ctx.cookies.set('userId', userInfo.userId, cookies);
+        // ctx.cookies.set('userId', '111', cookies);
+
         if (data.modifiedCount) {
             ctx.body = { status: 200, msg: '登录成功', userId: data.userId };
         } else if (!data.matchedCount) {
@@ -52,9 +57,9 @@ const login = async (ctx) => {
 
 // 退出登录
 const logout = async (ctx) => {
-    const { username } = ctx.request.body;
+    const { userId } = ctx.request.body;
     try {
-        const data = await UserModel.updateOne({ username }, { status: 1 });
+        const data = await UserModel.updateOne({ userId }, { status: 1 });
         if (data.modifiedCount) {
             ctx.body = { status: 200, msg: '登出成功' };
         } else if (!data.matchedCount) {
@@ -70,8 +75,8 @@ const logout = async (ctx) => {
 
 // 查看登录状态
 const getLoginStatus = async (ctx) => {
-    const { username } = ctx.query;
-    const result = await UserModel.findOne({ username });
+    const { userId } = ctx.query;
+    const result = await UserModel.findOne({ userId });
     if (result) {
         ctx.body = { status: 200, result: result.status, msg: '0表示登录, 1表示未登录' }
     } else {
