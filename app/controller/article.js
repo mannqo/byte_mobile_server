@@ -247,6 +247,32 @@ const unstarArticle = async (ctx) => {
     }
 }
 
+// 获取点赞文章
+const getLikedArticles = async (ctx) => {
+    const { userId } = ctx.query;
+    try {
+        const res = await UserModel.findOne({ userId }).select('likedArticles');
+        const { likedArticles } = res;
+        const articles = await ArticleModel.find({ _id: { $in: likedArticles } });
+        ctx.body = { status: 200, likedArticles: articles };
+    } catch (err) {
+        ctx.body = { status: 500 }
+    }
+}
+
+// 获取收藏文章
+const getStaredArticles = async (ctx) => {
+    const { userId } = ctx.query;
+    const res = await UserModel.findOne({ userId }).select('staredArticles');
+    const { staredArticles } = res;
+    const articles = await ArticleModel.find({ _id: staredArticles });
+    ctx.body = { status: 200, staredArticles: articles };
+}
+
+
+
+
+
 module.exports = {
     getArticleById,
     getArticleByAuthor,
@@ -256,4 +282,6 @@ module.exports = {
     unlikeArticle,
     starArticle,
     unstarArticle,
+    getLikedArticles,
+    getStaredArticles
 };
