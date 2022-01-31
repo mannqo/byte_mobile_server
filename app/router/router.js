@@ -42,7 +42,8 @@ const {
     postReview,
     deleteReview,
     likeReview,
-    unlikeReview
+    unlikeReview,
+    getLikedReviews
 } = require('../controller/review.js')
 
 router.get("/", async (ctx) => {
@@ -83,6 +84,7 @@ router.post("/review", postReview);
 router.post("/review/delete", deleteReview);
 router.post("/review/like", likeReview);
 router.post("/review/unlike", unlikeReview);
+router.get("/review/getLike", getLikedReviews);
 
 // message
 router.post('/sendMessage', sendMessage);

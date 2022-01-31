@@ -254,19 +254,23 @@ const getLikedArticles = async (ctx) => {
         const res = await UserModel.findOne({ userId }).select('likedArticles');
         const { likedArticles } = res;
         const articles = await ArticleModel.find({ _id: { $in: likedArticles } });
-        ctx.body = { status: 200, likedArticles: articles };
+        ctx.body = { status: 200, msg: '成功', likedArticles: articles };
     } catch (err) {
-        ctx.body = { status: 500 }
+        ctx.body = { status: 500, msg: '内部错误' };
     }
 }
 
 // 获取收藏文章
 const getStaredArticles = async (ctx) => {
     const { userId } = ctx.query;
-    const res = await UserModel.findOne({ userId }).select('staredArticles');
-    const { staredArticles } = res;
-    const articles = await ArticleModel.find({ _id: staredArticles });
-    ctx.body = { status: 200, staredArticles: articles };
+    try {
+        const res = await UserModel.findOne({ userId }).select('staredArticles');
+        const { staredArticles } = res;
+        const articles = await ArticleModel.find({ _id: staredArticles });
+        ctx.body = { status: 200, msg: '成功', staredArticles: articles };
+    } catch (err) {
+        ctx.body = { status: 500, msg: '内部错误' }
+    }
 }
 
 
