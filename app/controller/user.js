@@ -22,9 +22,9 @@ const getUserBaseInfo = async (ctx) => {
 // 根据userId查找用户的完整信息（不包括敏感信息）
 // 需要登录权限
 const getUserFullInfo = async (ctx) => {
-    const { username } = ctx.query;
+    const { userId } = ctx.query;
     try {
-        const user = await UserModel.findOne({ username })
+        const user = await UserModel.findOne({ userId })
             .select(`
                 userId
                 nickname
