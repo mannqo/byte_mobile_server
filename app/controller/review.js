@@ -194,11 +194,25 @@ const unlikeReview = async (ctx) => {
     }
 }
 
+// 获取点赞文章
+const getLikedReviews = async (ctx) => {
+    const { userId } = ctx.query;
+    try {
+        const res = await UserModel.findOne({ userId }).select('likedReviews');
+        const { likedReviews } = res;
+        const reviews = await ReviewModel.find({ _id: { $in: likedReviews } });
+        ctx.body = { status: 200, msg: '成功', likedReviews: reviews };
+    } catch (err) {
+        ctx.body = { status: 500, msg: '内部错误' };
+    }
+}
+
 module.exports = {
     getReviewById,
     getReviewByArticle,
     postReview,
     deleteReview,
     likeReview,
-    unlikeReview
+    unlikeReview,
+    getLikedReviews,
 };
