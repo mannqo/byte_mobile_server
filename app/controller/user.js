@@ -6,7 +6,7 @@ const UserModel = require('../models/UserModel');
 const getUserBaseInfo = async (ctx) => {
     const { userId } = ctx.query;
     try {
-        const user = await UserModel.findOne({ userId }).select('nickname avatar');
+        const user = await UserModel.findOne({ userId }).select('nickname avatar description');
 
         if (user) {
             ctx.body = { status: 200, msg: '查询成功', user };
@@ -148,12 +148,7 @@ const getFanList = async ctx => {
         ctx.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
     }
 }
-
-// 获取喜欢和收藏用户文章的人
-// const getLikeUsersArticle = async ctx => {
-//     const { userId } = ctx.query;
-
-// }
+ 
 
 module.exports = {
     getUserBaseInfo,

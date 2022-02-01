@@ -9,7 +9,6 @@ const getArticleById = async (ctx) => {
     const { articleId } = ctx.query;
     try {
         const article = await ArticleModel.findOne({ articleId });
-
         if (article) {
             if (article.available) {
                 const { reviewList } = article;

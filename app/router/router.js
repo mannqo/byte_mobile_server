@@ -47,6 +47,12 @@ const {
 } = require('../controller/review.js');
 const { searchByArticle, searchByUser } = require('../controller/search');
 
+const {
+    getLikeUsersArticle,
+    getStarUsersArticle,
+    getLikeUsersComment,
+} = require('../controller/notice');
+
 router.get("/", async (ctx) => {
     ctx.body = { msg: "Hello koa Interfaces" };
 })
@@ -95,5 +101,10 @@ router.get('/chat/getList', getChatList);
 // search
 router.get('/search/byArticle', searchByArticle);
 router.get('/search/byUser', searchByUser);
+
+// notice
+router.get('/notice/article/like', getLikeUsersArticle);
+router.get('/notice/article/star', getStarUsersArticle);
+router.get('/notice/comment', getLikeUsersComment);
 
 module.exports = router;
