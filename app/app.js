@@ -13,8 +13,6 @@ mongoose.connect(dbUrl)
     .then(() => { console.log('Mongodb Connected..'); })
     .catch((err) => { console.log(err); })
 
- 
-
 app.use(cors({
     origin: "http://localhost:3000",
     maxAge: 5, //指定本次预检请求的有效期，单位为秒。
@@ -28,11 +26,17 @@ app.use(router.routes()).use(router.allowedMethods());
 
 // 引入websocket模块 
 const io = require('socket.io')(server, { cors: true });
-io.of('/home/chat').on('connection', (socket) => {
-    socket.on('get-chatList', (userId) => {
-        console.log(userId);
-
+io.of('/chat').on('connection', socket => {
+    socket.on('online', userId => {
         socket.join(userId);
+    })
+    socket.on('send-message', (userId, receiverId, message) => {
+        console.log(userId, receiverId, message);
+        socket.to(receiverId).emit('receive-message', {
+            userId,
+            receiverId,
+            message
+        })
     })
 })
 

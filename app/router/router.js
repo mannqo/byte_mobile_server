@@ -86,9 +86,9 @@ router.post("/review/like", likeReview);
 router.post("/review/unlike", unlikeReview);
 router.get("/review/getLike", getLikedReviews);
 
-// message
-router.post('/sendMessage', sendMessage);
-router.get('/getChattingRecord', getChattingRecord);
-router.get('/getChatList', getChatList);
+// chat
+router.post('/chat/send', sendMessage);
+router.get('/chat/getRecord', getChattingRecord);
+router.get('/chat/getList', getChatList);
 
 module.exports = router;

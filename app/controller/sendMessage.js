@@ -9,7 +9,6 @@ const sendMessage = async (ctx) => {
     try {
         const messages = await MessageModel.find();
         const user = await UserModel.findOne({ userId }).select('chatList');
-        console.log(user);
         const receiver = await UserModel.findOne({ userId: receiverId }).select('chatList');
         const chatList = user.chatList;  // 获取原来的聊天列表
         const receiver_chatList = receiver.chatList;

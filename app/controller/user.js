@@ -149,6 +149,12 @@ const getFanList = async ctx => {
     }
 }
 
+// 获取喜欢和收藏用户文章的人
+// const getLikeUsersArticle = async ctx => {
+//     const { userId } = ctx.query;
+
+// }
+
 module.exports = {
     getUserBaseInfo,
     getUserFullInfo,
