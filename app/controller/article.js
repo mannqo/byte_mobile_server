@@ -123,8 +123,9 @@ const likeArticle = async (ctx) => {
                 ctx.body = { status: 406, msg: '你已经喜欢过了' }
             } else {
                 likedArticles.push(article._id);
+                article.likerList.push(userId);
                 const userResult = await UserModel.updateOne({ userId }, { likedArticles });
-                const articleResult = await ArticleModel.updateOne({ articleId }, { likes: article.likes + 1 });
+                const articleResult = await ArticleModel.updateOne({ articleId }, { likes: article.likes + 1, likerList: article.likerList });
                 const success = userResult.modifiedCount && articleResult.modifiedCount;
 
                 if (success) {
@@ -159,7 +160,8 @@ const unlikeArticle = async (ctx) => {
                 const userResult = await UserModel.updateOne({ userId }, {
                     likedArticles: likedArticles.filter(i => i.toString() !== article._id.toString())
                 });
-                const articleResult = await ArticleModel.updateOne({ articleId }, { likes: article.likes - 1 });
+                const likerList = article.likerList.filter(i => i !== userId);
+                const articleResult = await ArticleModel.updateOne({ articleId }, { likes: article.likes - 1, likerList });
                 const success = userResult.modifiedCount && articleResult.modifiedCount;
 
                 if (success) {
@@ -192,8 +194,9 @@ const starArticle = async (ctx) => {
                 ctx.body = { status: 406, msg: '你已经收藏过了' }
             } else {
                 staredArticles.push(article._id);
+                article.starerList.push(userId);
                 const userResult = await UserModel.updateOne({ userId }, { staredArticles });
-                const articleResult = await ArticleModel.updateOne({ articleId }, { stars: article.stars + 1 });
+                const articleResult = await ArticleModel.updateOne({ articleId }, { stars: article.stars + 1, starerList: article.starerList });
                 const success = userResult.modifiedCount && articleResult.modifiedCount;
 
                 if (success) {
@@ -228,7 +231,8 @@ const unstarArticle = async (ctx) => {
                 const userResult = await UserModel.updateOne({ userId }, {
                     staredArticles: staredArticles.filter(i => i.toString() !== article._id.toString())
                 });
-                const articleResult = await ArticleModel.updateOne({ articleId }, { stars: article.stars - 1 });
+                const starerList = article.starerList.filter(i => i !== userId);
+                const articleResult = await ArticleModel.updateOne({ articleId }, { stars: article.stars - 1, starerList });
                 const success = userResult.modifiedCount && articleResult.modifiedCount;
 
                 if (success) {
