@@ -10,15 +10,19 @@ const getArticleById = async (ctx) => {
     try {
         const article = await ArticleModel.findOne({ articleId });
 
-        if (article && article.available) {
-            const { reviewList } = article;
-            const list = await ReviewModel.find({ _id: { $in: reviewList } });
-            for (const review of list) {
-                review.reviewList = await ReviewModel.find({ _id: { $in: review.reviewList } });
-            }
-            article.reviewList = list;
+        if (article) {
+            if (article.available) {
+                const { reviewList } = article;
+                const list = await ReviewModel.find({ _id: { $in: reviewList } });
+                for (const review of list) {
+                    review.reviewList = await ReviewModel.find({ _id: { $in: review.reviewList } });
+                }
+                article.reviewList = list;
 
-            ctx.body = { status: 200, msg: '成功', article };
+                ctx.body = { status: 200, msg: '成功', article };
+            } else {
+                ctx.body = { status: 406, msg: '文章已被删除' };
+            }
         } else {
             ctx.body = { status: 404, msg: '找不到该文章' };
         }
@@ -32,7 +36,7 @@ const getArticleById = async (ctx) => {
 const getArticleByAuthor = async (ctx) => {
     const { authorId } = ctx.query;
     try {
-        const articles = await ArticleModel.find({ authorId });
+        const articles = await ArticleModel.find({ authorId, available: true });
 
         if (articles.length > 0) {
             ctx.body = { status: 200, msg: '成功', articles };
@@ -77,7 +81,7 @@ const postArticle = async (ctx) => {
 const deleteArticle = async (ctx) => {
     const { articleId } = ctx.request.body;
     try {
-        const article = await ArticleModel.findOne({ articleId });
+        const article = await ArticleModel.findOne({ articleId, available: true });
 
         if (article) {
             // 递归删除article中的每一条评论
@@ -117,7 +121,7 @@ const likeArticle = async (ctx) => {
         const article = await ArticleModel.findOne({ articleId });
 
         // 判断用户id和文章id是否有效
-        if (user && article) {
+        if (user && article && article.available) {
             const { likedArticles } = user;
             if (likedArticles.includes(article._id)) {
                 ctx.body = { status: 406, msg: '你已经喜欢过了' }
@@ -152,7 +156,7 @@ const unlikeArticle = async (ctx) => {
         const article = await ArticleModel.findOne({ articleId });
 
         // 判断用户id和文章id是否有效
-        if (user && article) {
+        if (user && article && article.available) {
             const { likedArticles } = user;
             if (!likedArticles.includes(article._id)) {
                 ctx.body = { status: 406, msg: '你还没有喜欢这篇文章' }
@@ -188,7 +192,7 @@ const starArticle = async (ctx) => {
         const article = await ArticleModel.findOne({ articleId });
 
         // 判断用户id和文章id是否有效
-        if (user && article) {
+        if (user && article && article.available) {
             const { staredArticles } = user;
             if (staredArticles.includes(article._id)) {
                 ctx.body = { status: 406, msg: '你已经收藏过了' }
@@ -223,7 +227,7 @@ const unstarArticle = async (ctx) => {
         const article = await ArticleModel.findOne({ articleId });
 
         // 判断用户id和文章id是否有效
-        if (user && article) {
+        if (user && article && article.available) {
             const { staredArticles } = user;
             if (!staredArticles.includes(article._id)) {
                 ctx.body = { status: 406, msg: '你还没有收藏这篇文章' }
