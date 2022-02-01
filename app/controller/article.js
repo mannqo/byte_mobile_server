@@ -9,7 +9,7 @@ const getArticleById = async (ctx) => {
     const { articleId } = ctx.query;
     try {
         const article = await ArticleModel.findOne({ articleId });
-
+        console.log(article);
         if (article && article.available) {
             const { reviewList } = article;
             const list = await ReviewModel.find({ _id: { $in: reviewList } });
@@ -17,7 +17,6 @@ const getArticleById = async (ctx) => {
                 review.reviewList = await ReviewModel.find({ _id: { $in: review.reviewList } });
             }
             article.reviewList = list;
-
             ctx.body = { status: 200, msg: '成功', article };
         } else {
             ctx.body = { status: 404, msg: '找不到该文章' };

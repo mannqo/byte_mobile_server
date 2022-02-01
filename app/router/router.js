@@ -46,6 +46,12 @@ const {
     getLikedReviews
 } = require('../controller/review.js')
 
+const {
+    getLikeUsersArticle,
+    getStarUsersArticle,
+    getLikeUsersComment,
+} = require('../controller/notice');
+
 router.get("/", async (ctx) => {
     ctx.body = { msg: "Hello koa Interfaces" };
 })
@@ -90,5 +96,10 @@ router.get("/review/getLike", getLikedReviews);
 router.post('/chat/send', sendMessage);
 router.get('/chat/getRecord', getChattingRecord);
 router.get('/chat/getList', getChatList);
+
+// notice
+router.get('/notice/article/like', getLikeUsersArticle);
+router.get('/notice/article/star', getStarUsersArticle);
+router.get('/notice/comment', getLikeUsersComment);
 
 module.exports = router;

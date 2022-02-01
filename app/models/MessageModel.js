@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { database } = require('../../config/config')
 
 const MessageSchema = mongoose.Schema({
     messageId: {
