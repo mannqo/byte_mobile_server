@@ -34,6 +34,14 @@ const ArticleSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
+    likerList: {
+        type: Array,
+        default: [],
+    },
+    starerList: {
+        type: Array,
+        default: [],
+    },
     reviews: {
         type: Number,
         default: 0

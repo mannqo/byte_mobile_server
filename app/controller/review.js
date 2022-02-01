@@ -139,8 +139,9 @@ const likeReview = async (ctx) => {
                 ctx.body = { status: 406, msg: '你已经喜欢过了' }
             } else {
                 likedReviews.push(review._id);
+                review.likerList.push(userId);
                 const userResult = await UserModel.updateOne({ userId }, { likedReviews });
-                const reviewResult = await ReviewModel.updateOne({ reviewId }, { likes: review.likes + 1 });
+                const reviewResult = await ReviewModel.updateOne({ reviewId }, { likes: review.likes + 1, likerList: review.likerList });
                 const success = userResult.modifiedCount && reviewResult.modifiedCount;
 
                 if (success) {
@@ -175,7 +176,8 @@ const unlikeReview = async (ctx) => {
                 const userResult = await UserModel.updateOne({ userId }, {
                     likedReviews: likedReviews.filter(i => i.toString() !== review._id.toString())
                 });
-                const reviewResult = await ReviewModel.updateOne({ reviewId }, { likes: review.likes - 1 });
+                const likerList = review.likerList.filter(i => i !== userId);
+                const reviewResult = await ReviewModel.updateOne({ reviewId }, { likes: review.likes - 1, likerList });
                 const success = userResult.modifiedCount && reviewResult.modifiedCount;
 
                 if (success) {

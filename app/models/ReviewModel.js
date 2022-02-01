@@ -30,6 +30,10 @@ const ReviewSchema = mongoose.Schema({
         type: Number,
         default: 0,
     },
+    likerList: {
+        type: Array,
+        default: [],
+    },
     reviewList: {
         type: Array,
         default: [],
