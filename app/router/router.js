@@ -44,7 +44,8 @@ const {
     likeReview,
     unlikeReview,
     getLikedReviews
-} = require('../controller/review.js')
+} = require('../controller/review.js');
+const { searchByArticle, searchByUser } = require('../controller/search');
 
 const {
     getLikeUsersArticle,
@@ -96,6 +97,10 @@ router.get("/review/getLike", getLikedReviews);
 router.post('/chat/send', sendMessage);
 router.get('/chat/getRecord', getChattingRecord);
 router.get('/chat/getList', getChatList);
+
+// search
+router.get('/search/byArticle', searchByArticle);
+router.get('/search/byUser', searchByUser);
 
 // notice
 router.get('/notice/article/like', getLikeUsersArticle);
