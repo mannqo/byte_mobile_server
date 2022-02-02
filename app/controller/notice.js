@@ -50,10 +50,10 @@ const getStarUsersArticle = async ctx => {
 const getLikeUsersComment = async ctx => {
     try {
         const { userId } = ctx.query;
-        const reviews = await ReviewModel.find({ userId }).select('replyToUserId replyToArticleId parentReviewId postDate');
+        const reviews = await ReviewModel.find({ replyToUserId: userId }).select('authorId replyToArticleId parentReviewId postDate');
         const like = [];
         for (const item of reviews) {
-            const userInfo = await UserModel.findOne({ userId: item.replyToUserId }).select('userId nickname avatar');
+            const userInfo = await UserModel.findOne({ userId: item.authorId }).select('userId nickname avatar');
             const articleInfo = await ArticleModel.findOne({ articleId: item.replyToArticleId }).select('articleId images');
             like.push({ reviews: { parentReviewId: item.parentReviewId, postDate: item.postDate }, userInfo, articleInfo })
         }
