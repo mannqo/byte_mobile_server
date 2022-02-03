@@ -75,6 +75,9 @@ router.post("/user/follow", followUser);
 router.post("/user/cancelFollow", cancelFollow);
 router.get("/user/followerList", getFollowerList);
 router.get("/user/fanList", getFanList);
+// edit
+router.post("/user/edit", edit);
+router.post("/user/upload", upload);
 
 // article
 router.get("/article/byId", getArticleById);
@@ -112,8 +115,5 @@ router.get('/notice/article/like', getLikeUsersArticle);
 router.get('/notice/article/star', getStarUsersArticle);
 router.get('/notice/comment', getLikeUsersComment);
 
-// edit
-router.post("/user/edit", edit);
-router.post("/user/upload", upload);
 
 module.exports = router;
