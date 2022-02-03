@@ -6,7 +6,11 @@ const UserModel = require('../models/UserModel');
 const getUserBaseInfo = async (ctx) => {
     const { userId } = ctx.query;
     try {
-        const user = await UserModel.findOne({ userId }).select('nickname avatar description');
+        if (isNaN(Number(userId))) {
+            ctx.body = { status: 400, msg: '参数错误' };
+            return;
+        }
+        const user = await UserModel.findOne({ userId }).select('nickname avatar description userId');
 
         if (user) {
             ctx.body = { status: 200, msg: '查询成功', user };
@@ -24,6 +28,10 @@ const getUserBaseInfo = async (ctx) => {
 const getUserFullInfo = async (ctx) => {
     const { userId } = ctx.query;
     try {
+        if (isNaN(Number(userId))) {
+            ctx.body = { status: 400, msg: '参数错误' };
+            return;
+        }
         const user = await UserModel.findOne({ userId })
             .select(`
                 userId
@@ -148,7 +156,7 @@ const getFanList = async ctx => {
         ctx.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
     }
 }
- 
+
 
 module.exports = {
     getUserBaseInfo,
