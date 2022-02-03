@@ -60,7 +60,7 @@ const getLikeUsersComment = async ctx => {
         ctx.body = { status: 200, like };
     } catch (err) {
         console.log(err);
-        ctx.body = { status: 200, msg: '内部错误' };
+        ctx.body = { status: 500, msg: '内部错误' };
     }
 }
 

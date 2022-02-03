@@ -21,6 +21,8 @@ const {
     cancelFollow,
     getFollowerList,
     getFanList,
+    edit,
+    upload
 } = require('../controller/user.js')
 
 const {
@@ -52,6 +54,7 @@ const {
     getStarUsersArticle,
     getLikeUsersComment,
 } = require('../controller/notice');
+
 
 router.get("/", async (ctx) => {
     ctx.body = { msg: "Hello koa Interfaces" };
@@ -106,5 +109,9 @@ router.get('/search/byUser', searchByUser);
 router.get('/notice/article/like', getLikeUsersArticle);
 router.get('/notice/article/star', getStarUsersArticle);
 router.get('/notice/comment', getLikeUsersComment);
+
+// edit
+router.post("/user/edit", edit);
+router.post("/user/upload", upload);
 
 module.exports = router;

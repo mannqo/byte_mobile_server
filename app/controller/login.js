@@ -32,13 +32,13 @@ const register = async (ctx) => {
 
 // 登录 每个操作都要检查一下cookies
 // const cookies = require('../../config/cookies');
-const login = async (ctx, next) => {
+const login = async (ctx) => {
     const body = ctx.request.body;
     const { username, password } = body;
-    // await next();
     try {
         const data = await UserModel.updateOne({ username, password }, { status: 0 });
         const { userId } = await UserModel.findOne({ username });
+
         if (data.modifiedCount) {
             ctx.body = { status: 200, msg: '登录成功', userId };
         } else if (!data.matchedCount) {

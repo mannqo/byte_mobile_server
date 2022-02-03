@@ -1,7 +1,9 @@
 
 const Koa = require('koa');
 const cors = require('koa2-cors')
-const bodyParser = require('koa-bodyparser');
+const koaBody = require('koa-body');
+const koaStatic = require('koa-static');
+const path = require('path');
 const app = new Koa();
 const router = require('./router/router');
 const server = require('http').createServer(app.callback());
@@ -11,7 +13,7 @@ const mongoose = require('mongoose');
 const { dbUrl } = require('../config/config');
 mongoose.connect(dbUrl)
     .then(() => { console.log('Mongodb Connected..'); })
-    .catch((err) => { console.log(err); })
+    .catch((err) => { })
 
 app.use(cors({
     origin: "http://localhost:3000",
@@ -21,7 +23,17 @@ app.use(cors({
     allowHeaders: ['sessionId', 'Content-Type', 'Authorization', 'Accept'], //设置服务器支持的所有头信息字段
     exposeHeaders: ['SESSIONID', 'WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
 }))
-app.use(bodyParser());
+
+// 存放静态资源
+app.use(koaBody({
+    multipart: true,
+    formidable: {
+        uploadDir: path.join(__dirname, '/public/img'),
+        keepExtensions: true,
+        maxFieldsSize: 10 * 1024 * 1024,
+    }
+}))
+app.use(koaStatic(path.join(__dirname), 'public'));
 app.use(router.routes()).use(router.allowedMethods());
 
 // 引入websocket模块 

@@ -1,12 +1,24 @@
 const UserModel = require('../models/UserModel');
 
 
+
 // 根据userId查找用户基础信息（昵称+头像）
 // 不需要权限
 const getUserBaseInfo = async (ctx) => {
     const { userId } = ctx.query;
     try {
-        const user = await UserModel.findOne({ userId }).select('nickname avatar description');
+        const user = await UserModel.findOne({ userId })
+            .select(`
+            userId
+            nickname
+            avatar 
+            description
+            gender
+            birthday
+            area
+            profession
+            backGroundPicture
+            `);
 
         if (user) {
             ctx.body = { status: 200, msg: '查询成功', user };
@@ -14,7 +26,6 @@ const getUserBaseInfo = async (ctx) => {
             ctx.body = { status: 404, msg: '查找的用户不存在' };
         }
     } catch (err) {
-        console.error(err);
         ctx.body = { status: 500, msg: '内部错误' };
     }
 }
@@ -148,7 +159,56 @@ const getFanList = async ctx => {
         ctx.body = { status: 500, msg: '未知错误，可能是找不到这个用户' };
     }
 }
- 
+
+
+// 修改个人资料
+const path = require('path');
+const edit = async ctx => {
+    const { userId } = ctx.request.body;
+    const editMes = ctx.request.body
+    try {
+        const user = await UserModel.findOne({ userId });
+        console.log(user);
+        if (!user) {
+            ctx.body = { status: 400, msg: '参数错误' };
+            return;
+        }
+        const editResult = await UserModel.updateOne({ userId }, editMes);
+        if (editResult.modifiedCount) ctx.body = { status: 200, msg: '修改成功' }
+        else ctx.body = { status: 400, msg: '修改失败' };
+    } catch (error) {
+        ctx.body = { status: 500, msg: '内部错误' };
+    }
+}
+
+const upload = async ctx => {
+    const { userId } = ctx.request.body;
+    const { avatar, backGroundPicture } = ctx.request.files;
+    const basename = avatar ? path.basename(avatar.path) : path.basename(backGroundPicture.path);
+
+    try {
+        const user = await UserModel.findOne({ userId });
+        if (!user && !avatar && !backGroundPicture) {
+            ctx.body = { status: 400, msg: '参数错误' };
+            return;
+        }
+        if (avatar) {
+            const avatarUrl = `http://localhost:8080/public/img/${basename}`;
+            const editResult = await UserModel.updateOne({ userId }, { avatar: avatarUrl });
+            if (editResult.modifiedCount) ctx.body = { 'status': 200, avatar: avatarUrl, msg: '上传成功' }
+        } else if (backGroundPicture) {
+            const backGroundPictureUrl = `http://localhost:8080/public/img/${basename}`;
+            const editResult = await UserModel.updateOne({ userId }, { backGroundPicture: backGroundPictureUrl });
+            if (editResult.modifiedCount) ctx.body = { status: 200, backGroundPicture: backGroundPictureUrl, msg: '上传成功' }
+            else ctx.body = { status: 400, msg: "上传失败" }
+        }
+    } catch (error) {
+        console.error(err);
+        ctx.body = { status: 500, msg: '内部错误' };
+    }
+}
+
+
 
 module.exports = {
     getUserBaseInfo,
@@ -157,4 +217,6 @@ module.exports = {
     cancelFollow,
     getFollowerList,
     getFanList,
+    edit,
+    upload
 };

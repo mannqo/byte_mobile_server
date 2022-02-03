@@ -54,6 +54,26 @@ const UsersSchema = mongoose.Schema({
     fans: {
         type: Array,
         default: []
+    },
+    gender: {
+        type: String,
+        default: '1',
+    },
+    birthday: {
+        type: String,
+        default: ''
+    },
+    area: {
+        type: String,
+        default: ''
+    },
+    profession: {
+        type: Array,
+        default: []
+    },
+    backGroundPicture: {
+        type: String,
+        default: ''
     }
 })
 
