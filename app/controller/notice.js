@@ -1,17 +1,18 @@
-const ArticleModel = require('../models/ArticleModel.js');
-const UserModel = require('../models/UserModel.js');
+const ArticleModel = require('../models/ArticleModel');
+const UserModel = require('../models/UserModel');
+const ReviewModel = require('../models/ReviewModel');
 
 
 // 获取喜欢和收藏用户文章的人
 const getLikeUsersArticle = async ctx => {
     try {
         const { userId } = ctx.query;
-        const articles = await ArticleModel.find({ userId }).select('articleId likerList postDate');
+        const articles = await ArticleModel.find({ userId }).select('articleId likerList postDate images');
         const like = [];
         for (const article of articles) {
             const { likerList, postDate } = article;
             for (let userId of likerList) {
-                const userInfo = await UserModel.findOne({ userId });
+                const userInfo = await UserModel.findOne({ userId }).select('userId nickname avatar');
                 const articleInfo = article;
                 like.push({ articleInfo, userInfo, postDate })
             }
@@ -27,12 +28,12 @@ const getLikeUsersArticle = async ctx => {
 const getStarUsersArticle = async ctx => {
     try {
         const { userId } = ctx.query;
-        const articles = await ArticleModel.find({ userId }).select('articleId starerList postDate');
+        const articles = await ArticleModel.find({ userId }).select('articleId starerList postDate images');
         const star = [];
         for (const article of articles) {
             const { starerList, postDate } = article;
             for (let userId of starerList) {
-                const userInfo = await UserModel.findOne({ userId });
+                const userInfo = await UserModel.findOne({ userId }).select('userId nickname avatar');
                 const articleInfo = article;
                 star.push({ articleInfo, userInfo, postDate });
             }
@@ -47,8 +48,20 @@ const getStarUsersArticle = async ctx => {
 }
 
 const getLikeUsersComment = async ctx => {
-    const { userId } = ctx.query;
-
+    try {
+        const { userId } = ctx.query;
+        const reviews = await ReviewModel.find({ replyToUserId: userId }).select('authorId replyToArticleId parentReviewId postDate');
+        const like = [];
+        for (const item of reviews) {
+            const userInfo = await UserModel.findOne({ userId: item.authorId }).select('userId nickname avatar');
+            const articleInfo = await ArticleModel.findOne({ articleId: item.replyToArticleId }).select('articleId images');
+            like.push({ reviews: { parentReviewId: item.parentReviewId, postDate: item.postDate }, userInfo, articleInfo })
+        }
+        ctx.body = { status: 200, like };
+    } catch (err) {
+        console.log(err);
+        ctx.body = { status: 200, msg: '内部错误' };
+    }
 }
 
 module.exports = {
