@@ -280,7 +280,26 @@ const getStaredArticles = async (ctx) => {
     }
 }
 
-
+// 获取首页文章列表
+const getHomePageArticles = async (ctx) => {
+    try {
+        const tags = ['旅行', '美食', '时尚', '彩妆', '高效', '护肤'];
+        const pages = [];
+        pages.push({
+            tag: '推荐',
+            articles: await ArticleModel.find({ available: true })
+        });
+        for (const tag of tags) {
+            pages.push({
+                tag,
+                articles: await ArticleModel.find({ tags: { $all: tag }, available: true })
+            });
+        }
+        ctx.body = { status: 200, msg: '成功', pages };
+    } catch (err) {
+        ctx.body = { status: 500, msg: '内部错误' };
+    }
+}
 
 
 
@@ -294,5 +313,6 @@ module.exports = {
     starArticle,
     unstarArticle,
     getLikedArticles,
-    getStaredArticles
+    getStaredArticles,
+    getHomePageArticles
 };
