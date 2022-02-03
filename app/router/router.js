@@ -55,6 +55,7 @@ const {
     getStarUsersArticle,
     getLikeUsersComment,
 } = require('../controller/notice');
+const { imageUpload, revertImageUpload } = require('../controller/upload');
 
 
 router.get("/", async (ctx) => {
@@ -115,5 +116,9 @@ router.get('/notice/article/like', getLikeUsersArticle);
 router.get('/notice/article/star', getStarUsersArticle);
 router.get('/notice/comment', getLikeUsersComment);
 
+
+// upload
+router.post('/upload/image', imageUpload);
+router.post('/upload/image/revert', revertImageUpload);
 
 module.exports = router;
