@@ -35,7 +35,8 @@ const {
     starArticle,
     unstarArticle,
     getLikedArticles,
-    getStaredArticles
+    getStaredArticles,
+    getHomePageArticles
 } = require('../controller/article.js')
 
 const {
@@ -86,6 +87,7 @@ router.post("/article/star", starArticle);
 router.post("/article/unstar", unstarArticle);
 router.get("/article/getLike", getLikedArticles);
 router.get("/article/getStar", getStaredArticles);
+router.get("/article/getHomePage", getHomePageArticles);
 
 // review
 router.get("/review/byId", getReviewById);
