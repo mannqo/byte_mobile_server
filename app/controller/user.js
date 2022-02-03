@@ -19,8 +19,7 @@ const getUserBaseInfo = async (ctx) => {
             description
             gender
             birthday
-            area
-            profession
+            area 
             backGroundPicture
             `);
 
@@ -173,7 +172,7 @@ const getFanList = async ctx => {
 const path = require('path');
 const edit = async ctx => {
     const { userId } = ctx.request.body;
-    const editMes = ctx.request.body
+    const editMes = ctx.request.body;
     try {
         const user = await UserModel.findOne({ userId });
         console.log(user);

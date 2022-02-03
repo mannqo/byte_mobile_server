@@ -66,11 +66,7 @@ const UsersSchema = mongoose.Schema({
     area: {
         type: String,
         default: ''
-    },
-    profession: {
-        type: Array,
-        default: []
-    },
+    }, 
     backGroundPicture: {
         type: String,
         default: ''
