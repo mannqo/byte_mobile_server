@@ -7,14 +7,14 @@ const ReviewModel = require('../models/ReviewModel');
 const getLikeUsersArticle = async ctx => {
     try {
         const { userId } = ctx.query;
-        const articles = await ArticleModel.find({ userId }).select('articleId likerList postDate images');
+        const articles = await ArticleModel.find({ authorId: userId }).select('articleId likerList  images');
         const like = [];
         for (const article of articles) {
-            const { likerList, postDate } = article;
+            const { likerList } = article;
             for (let userId of likerList) {
                 const userInfo = await UserModel.findOne({ userId }).select('userId nickname avatar');
                 const articleInfo = article;
-                like.push({ articleInfo, userInfo, postDate })
+                like.push({ articleInfo, userInfo })
             }
         }
         ctx.body = { status: 200, like };
@@ -28,7 +28,8 @@ const getLikeUsersArticle = async ctx => {
 const getStarUsersArticle = async ctx => {
     try {
         const { userId } = ctx.query;
-        const articles = await ArticleModel.find({ userId }).select('articleId starerList postDate images');
+        const articles = await ArticleModel.find({ authorId: userId }).select('articleId starerList postDate images');
+        console.log(articles);
         const star = [];
         for (const article of articles) {
             const { starerList, postDate } = article;

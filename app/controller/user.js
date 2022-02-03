@@ -12,7 +12,7 @@ const getUserBaseInfo = async (ctx) => {
             return;
         }
         const user = await UserModel.findOne({ userId }).
-        select(`
+            select(`
             userId
             nickname
             avatar 
@@ -65,8 +65,8 @@ const getUserFullInfo = async (ctx) => {
 }
 
 // 关注别人
-const followUser = async (ctx) => {
-    const { userId, followerId } = ctx.request.body;
+const followUser = async (ctx) => { 
+    const { userId, followerId } = ctx.request.body; 
     try {
         const user = await UserModel.findOne({ userId });
         const follower = await UserModel.findOne({ userId: followerId });
@@ -171,11 +171,10 @@ const getFanList = async ctx => {
 // 修改个人资料
 const path = require('path');
 const edit = async ctx => {
-    const { userId } = ctx.request.body;
+    const { userId } = ctx.request.body; 
     const editMes = ctx.request.body;
     try {
-        const user = await UserModel.findOne({ userId });
-        console.log(user);
+        const user = await UserModel.findOne({ userId }); 
         if (!user) {
             ctx.body = { status: 400, msg: '参数错误' };
             return;
