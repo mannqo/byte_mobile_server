@@ -39,11 +39,11 @@ app.use(router.routes()).use(router.allowedMethods());
 // 引入websocket模块 
 const io = require('socket.io')(server, { cors: true });
 io.of('/chat').on('connection', socket => {
-    socket.on('online', userId => {
+    socket.on("online", userId => { 
         socket.join(userId);
     })
-    socket.on('send-message', (userId, receiverId, message) => {
-        console.log(userId, receiverId, message);
+    socket.on('send-message', (msg) => { 
+        const { userId, receiverId, message } = msg;
         socket.to(receiverId).emit('receive-message', {
             userId,
             receiverId,
