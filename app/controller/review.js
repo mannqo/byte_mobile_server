@@ -114,7 +114,7 @@ const deleteReview = async (ctx) => {
                 ctx.body = { status: 200, msg: '删除评论成功' };
             } else {
                 console.error({ reviewId, result });
-                ctx.body = { status: 500, msg: '内部错误' };
+                ctx.body = { status: 406, msg: '似乎是重复请求' };
             }
         } else {
             ctx.body = { status: 404, msg: '找不到该评论' };
@@ -148,7 +148,7 @@ const likeReview = async (ctx) => {
                     ctx.body = { status: 200, msg: '成功' }
                 } else {
                     console.error({ userId, reviewId });
-                    ctx.body = { status: 500, msg: '内部错误' };
+                    ctx.body = { status: 406, msg: '似乎是重复请求' };
                 }
             }
         } else {
@@ -184,7 +184,7 @@ const unlikeReview = async (ctx) => {
                     ctx.body = { status: 200, msg: '成功' }
                 } else {
                     console.error({ userId, reviewId });
-                    ctx.body = { status: 500, msg: '内部错误' };
+                    ctx.body = { status: 406, msg: '似乎是重复请求' };
                 }
             }
         } else {
