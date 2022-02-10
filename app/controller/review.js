@@ -20,17 +20,34 @@ const getReviewById = async (ctx) => {
     }
 }
 
-// 通过文章ID查找评论
+// 通过文章ID查找评论（分页）
 const getReviewByArticle = async (ctx) => {
-    const { articleId } = ctx.query;
-    try {
-        const reviews = await ReviewModel.find({ replyToArticleId: articleId });
+    let { articleId, pages } = ctx.query;
 
-        if (reviews.length > 0) {
-            ctx.body = { status: 200, msg: '成功', reviews };
-        } else {
-            ctx.body = { status: 404, msg: '找不到任何结果' };
+    try {
+        pages = Number(pages);
+        if (isNaN(pages) || pages < 0) {
+            ctx.body = { status: 400, msg: '参数有误' };
+            return;
         }
+
+        const article = await ArticleModel.findOne({ articleId });
+        if (!article) {
+            ctx.body = { status: 404, msg: '不存在这篇文章' };
+            return;
+        }
+        if (!article.available) {
+            ctx.body = { status: 406, msg: '文章已被删除' };
+            return;
+        }
+
+        const { reviewList } = article;
+        const reviews = await ReviewModel.find({ _id: { $in: reviewList } }).sort({ 'likes': -1, '_id': -1 }).skip(pages * 10).limit(10);
+        for (const review of reviews) {
+            review.reviewList = await ReviewModel.find({ _id: { $in: review.reviewList } });
+        }
+
+        ctx.body = { status: 200, msg: '成功', reviews };
     } catch (err) {
         console.error(err);
         ctx.body = { status: 500, msg: '内部错误' };
