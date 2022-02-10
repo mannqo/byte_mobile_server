@@ -1,5 +1,4 @@
 const ArticleModel = require('../models/ArticleModel.js');
-const ReviewModel = require('../models/ReviewModel.js');
 const UserModel = require('../models/UserModel.js');
 const { deleteReview } = require('./review');
 
@@ -11,13 +10,6 @@ const getArticleById = async (ctx) => {
         const article = await ArticleModel.findOne({ articleId });
         if (article) {
             if (article.available) {
-                const { reviewList } = article;
-                const list = await ReviewModel.find({ _id: { $in: reviewList } });
-                for (const review of list) {
-                    review.reviewList = await ReviewModel.find({ _id: { $in: review.reviewList } });
-                }
-                article.reviewList = list;
-
                 ctx.body = { status: 200, msg: '成功', article };
             } else {
                 ctx.body = { status: 406, msg: '文章已被删除' };
@@ -280,16 +272,11 @@ const getStaredArticles = async (ctx) => {
 const getHomePageArticles = async (ctx) => {
     try {
         const tags = ['旅行', '美食', '时尚', '彩妆', '高效', '护肤'];
-        const pages = [];
-        pages.push({
-            tag: '推荐',
-            articles: await ArticleModel.find({ available: true })
-        });
+        const pages = {};
+        // 初始只给加载10篇
+        pages['推荐'] = await ArticleModel.find({ available: true }).sort({ 'likes': -1, '_id': -1 }).limit(10)
         for (const tag of tags) {
-            pages.push({
-                tag,
-                articles: await ArticleModel.find({ tags: { $all: tag }, available: true })
-            });
+            pages[tag] = await ArticleModel.find({ tags: { $all: tag }, available: true })
         }
         ctx.body = { status: 200, msg: '成功', pages };
     } catch (err) {
@@ -297,6 +284,28 @@ const getHomePageArticles = async (ctx) => {
     }
 }
 
+// 获取分类文章列表（分页）
+const getHomePageTagArticles = async (ctx) => {
+    let { tag, pages } = ctx.query;
+
+    try {
+        let articles;
+        pages = Number(pages);
+        if (isNaN(pages) || pages < 0) {
+            ctx.body = { status: 400, msg: '参数有误' };
+            return;
+        }
+
+        if (tag === '推荐') {
+            articles = await ArticleModel.find({ available: true }).sort({ 'likes': -1, '_id': -1 }).skip(pages * 10).limit(10)
+        } else {
+            articles = await ArticleModel.find({ tags: { $all: tag }, available: true }).skip(pages * 10).limit(10)
+        }
+        ctx.body = { status: 200, msg: '成功', articles };
+    } catch (err) {
+        ctx.body = { status: 500, msg: '内部错误' };
+    }
+}
 
 
 module.exports = {
@@ -310,5 +319,6 @@ module.exports = {
     unstarArticle,
     getLikedArticles,
     getStaredArticles,
-    getHomePageArticles
+    getHomePageArticles,
+    getHomePageTagArticles,
 };
