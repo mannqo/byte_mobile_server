@@ -37,11 +37,7 @@ const getArticleByAuthor = async (ctx) => {
     try {
         const articles = await ArticleModel.find({ authorId, available: true });
 
-        if (articles.length > 0) {
-            ctx.body = { status: 200, msg: '成功', articles };
-        } else {
-            ctx.body = { status: 404, msg: '找不到任何结果' };
-        }
+        ctx.body = { status: 200, msg: '成功', articles };
     } catch (err) {
         console.error(err);
         ctx.body = { status: 500, msg: '内部错误' };
