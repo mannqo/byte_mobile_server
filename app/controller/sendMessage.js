@@ -18,7 +18,7 @@ const sendMessage = async (ctx) => {
         await UserModel.updateOne({ userId }, { chatList });
         await UserModel.updateOne({ userId: receiverId }, { chatList: receiver_chatList })
 
-        const messageId = messages.length + 1;
+        const messageId = messages.length > 0 ? messages[messages.length - 1].messageId + 1 : 1;
         const newMessage = new MessageModel({
             messageId,
             userId,
