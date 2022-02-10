@@ -4,7 +4,6 @@ const UserModel = require('../models/UserModel')
 
 
 const sendMessage = async (ctx) => {
-
     const { userId, receiverId, message } = ctx.request.body;
     try {
         const messages = await MessageModel.find();
@@ -28,7 +27,7 @@ const sendMessage = async (ctx) => {
         })
         await MessageModel.create(newMessage);
 
-        ctx.body = { status: 200, msg: "发送成功" };
+        ctx.body = { status: 200, msg: "发送成功", newMessage };
     } catch (err) {
         console.log(err);
         ctx.body = { status: 500, msg: "未知异常" };
@@ -36,10 +35,13 @@ const sendMessage = async (ctx) => {
 }
 
 const getChattingRecord = async (ctx) => {
-    const { userId, receiverId } = ctx.request.query;
+    const { userId, receiverId, page } = ctx.request.query;
     try {
-        const record = await MessageModel.find({ $or: [{ userId, receiverId }, { userId: receiverId, receiverId: userId }] });
-        ctx.body = { status: 200, record };
+        const record = await MessageModel.
+            find({ $or: [{ userId, receiverId }, { userId: receiverId, receiverId: userId }] });
+        const length = record.length;
+        const newRecord = record.slice(length - 15 * page, length - 15 * (page - 1));
+        ctx.body = { status: 200, newRecord };
     } catch (err) {
         console.log(err);
         ctx.body = { status: 500, msg: '获取失败' }
