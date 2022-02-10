@@ -21,7 +21,7 @@ const register = async (ctx) => {
 
         try {
             await UserModel.create(newUser);
-            ctx.body = { status: 200, msg: '注册成功' }
+            ctx.body = { status: 200, msg: '注册成功, 请前往登录' }
         } catch (err) {
             console.log(err);
             ctx.body = { status: 500, msg: '内部错误' }
