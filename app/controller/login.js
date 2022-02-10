@@ -37,13 +37,14 @@ const login = async (ctx) => {
     const { username, password } = body;
     try {
         const data = await UserModel.updateOne({ username, password }, { status: 0 });
-        const { userId } = await UserModel.findOne({ username });
-
+        
         if (data.modifiedCount) {
+            const { userId } = await UserModel.findOne({ username });
             ctx.body = { status: 200, msg: '登录成功', userId };
         } else if (!data.matchedCount) {
-            ctx.body = { status: 400, msg: '账号或密码错误', userId };
+            ctx.body = { status: 400, msg: '账号或密码错误' };
         } else {
+            const { userId } = await UserModel.findOne({ username });
             ctx.body = { status: 406, msg: '你已经登录了', userId };
         }
     } catch (err) {
