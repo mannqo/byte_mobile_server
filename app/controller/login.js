@@ -1,12 +1,13 @@
+const jsonwebtoken = require('jsonwebtoken');
+const SECRET = require('../../config/jwt.js');
+
 const UserModel = require('../models/UserModel.js');
-const mongoose = require('mongoose');
 
 
 // 注册
 const register = async (ctx) => {
     const { username, password } = ctx.request.body;
     const user = await UserModel.findOne({ username });
-
     if (user) ctx.body = { status: 400, msg: '该用户名已存在' };
     else {
         const users = await UserModel.find({});
@@ -18,7 +19,6 @@ const register = async (ctx) => {
             password,
             nickname: username,
         })
-
         try {
             await UserModel.create(newUser);
             ctx.body = { status: 200, msg: '注册成功, 请前往登录' }
@@ -34,13 +34,21 @@ const register = async (ctx) => {
 // const cookies = require('../../config/cookies');
 const login = async (ctx) => {
     const body = ctx.request.body;
-    const { username, password } = body;
+    const { username, password } = body; 
     try {
         const data = await UserModel.updateOne({ username, password }, { status: 0 });
-        
         if (data.modifiedCount) {
             const { userId } = await UserModel.findOne({ username });
-            ctx.body = { status: 200, msg: '登录成功', userId };
+            ctx.body = {
+                status: 200,
+                msg: '登录成功',
+                userId,
+                token: jsonwebtoken.sign(
+                    { username, userId },
+                    SECRET,
+                    { expiresIn: '1h' }
+                )
+            };
         } else if (!data.matchedCount) {
             ctx.body = { status: 400, msg: '账号或密码错误' };
         } else {
